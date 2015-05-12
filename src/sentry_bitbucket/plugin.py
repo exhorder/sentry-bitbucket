@@ -100,11 +100,12 @@ class BitbucketPlugin(IssuePlugin):
             raise forms.ValidationError(_('Error communicating with Bitbucket: %s') % (e,))
 
         if resp.status_code not in (200, 201):
-            raise forms.ValidationError(_('Error decoding response from Bitbucket: %s') % (e,))
+            raise forms.ValidationError(_('Error creating the issue on Bitbucket: %s') % (data,))
+
         try:
             data = resp.json()
         except Exception as e:
-            raise forms.ValidationError(_('Error creating the issue on Bitbucket: %s') % (data,))
+            raise forms.ValidationError(_('Error decoding response from Bitbucket: %s') % (e,))
 
         return data['local_id']
 
