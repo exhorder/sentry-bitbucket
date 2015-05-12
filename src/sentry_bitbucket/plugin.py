@@ -5,12 +5,13 @@ sentry_bitbucket.plugin
 :copyright: (c) 2013 by Atomised Co-operative Ltd.
 :license: BSD, see LICENSE for more details.
 """
-import requests
 import sentry_bitbucket
 
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
+from sentry import http
 from sentry.plugins.bases.issue import IssuePlugin
 
 from requests_oauthlib import OAuth1
@@ -92,15 +93,18 @@ class BitbucketPlugin(IssuePlugin):
                         auth.tokens['oauth_token'], auth.tokens['oauth_token_secret'],
                         signature_type='auth_header')
 
+        session = http.build_session()
         try:
-            resp = requests.post(url, data=data, auth=oauth)
-        except Exception, e:
+            resp = session.post(url, data=data, auth=oauth)
+        except Exception as e:
             raise forms.ValidationError(_('Error communicating with Bitbucket: %s') % (e,))
 
+        if resp.status_code not in (200, 201):
+            raise forms.ValidationError(_('Error decoding response from Bitbucket: %s') % (e,))
         try:
             data = resp.json()
-        except Exception, e:
-            raise forms.ValidationError(_('Error decoding response from Bitbucket: %s') % (e,))
+        except Exception as e:
+            raise forms.ValidationError(_('Error creating the issue on Bitbucket: %s') % (data,))
 
         return data['local_id']
 
