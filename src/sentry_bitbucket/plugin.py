@@ -99,6 +99,10 @@ class BitbucketPlugin(IssuePlugin):
         except Exception as e:
             raise forms.ValidationError(_('Error communicating with Bitbucket: %s') % (e,))
 
+        if resp.status_code == 404:
+            BITBUCKET_ISSUES_SETTINGS = 'https://bitbucket.org/%s/admin/issues' % (repo,)
+            raise forms.ValidationError(_'No Bitbucket issue tracker found. Please enable issue tracker at %s'
+                % (BITBUCKET_ISSUES_SETTINGS))
         if resp.status_code not in (200, 201):
             raise forms.ValidationError(_('Error creating the issue on Bitbucket: %s') % (data,))
 
