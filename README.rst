@@ -2,6 +2,8 @@
 sentry-bitbucket
 ================
 
+**DEPRECATED:** This project now lives in `sentry-plugins <https://github.com/getsentry/sentry-plugins>`_
+
 :Author: Neil Albrock
 :Version: 0.1.5
 
